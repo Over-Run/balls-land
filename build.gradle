@@ -1,0 +1,96 @@
+plugins {
+    id 'java-library'
+    id 'idea'
+}
+
+sourceCompatibility = targetCompatibility = JavaVersion.VERSION_17
+
+group projGroupId
+archivesBaseName = projArtifactId
+version = projVersion
+
+repositories {
+    mavenCentral()
+    maven { url 'https://maven.aliyun.com/repository/central' }
+    // temporary maven repositories
+    maven { url 'https://s01.oss.sonatype.org/content/repositories/releases' }
+    maven { url 'https://s01.oss.sonatype.org/content/repositories/snapshots' }
+}
+
+dependencies {
+    compileOnly 'org.jetbrains:annotations:23.0.0'
+    implementation 'org.slf4j:slf4j-simple:2.0.0-alpha7'
+    implementation 'io.github.over-run:swgl-core:0.2.0-SNAPSHOT'
+
+    for (String depend in ['', '-glfw', '-opengl', '-stb', '-jemalloc']) {
+        api "org.lwjgl:lwjgl$depend"
+        for (String platform in [
+            //'linux-arm32',
+            //'linux-arm64',
+            //'linux',
+            //'macos-arm64',
+            //'macos',
+            //'windows-arm64',
+            //'windows-x86',
+            'windows'
+        ]) {
+            runtimeOnly "org.lwjgl:lwjgl$depend::natives-$platform"
+        }
+    }
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+jar {
+    manifestContentCharset 'utf-8'
+    metadataCharset 'utf-8'
+    from 'LICENSE', 'changelog.txt'
+    manifest.attributes(
+        'Specification-Title': projName,
+        'Specification-Vendor': 'Overrun Organization',
+        'Specification-Version': '0',
+        'Implementation-Title': projName,
+        'Implementation-Vendor': 'Overrun Organization',
+        'Implementation-Version': archiveVersion
+    )
+}
+
+processResources {
+    inputs.property "game_version", projVersion
+
+    filesMatching("_version.txt") {
+        expand "game_version": projVersion
+    }
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    archiveClassifier.set 'sources'
+    from sourceSets.main.allSource, 'LICENSE', 'changelog.txt'
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    archiveClassifier.set 'javadoc'
+    from javadoc, 'LICENSE', 'changelog.txt'
+}
+
+artifacts {
+    archives /*javadocJar, */sourcesJar
+}
+
+java {
+    //withJavadocJar()
+    withSourcesJar()
+}
+
+javadoc {
+    failOnError = false
+    options.encoding 'UTF-8'
+    options.charSet 'UTF-8'
+    options.author true
+    options.links 'https://docs.oracle.com/en/java/javase/17/docs/api/'
+    options.windowTitle "$projName $projVersion Javadoc"
+}
+
+idea.module.inheritOutputDirs = true
