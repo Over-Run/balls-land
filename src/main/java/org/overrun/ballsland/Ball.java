@@ -34,7 +34,7 @@ public final class Ball {
         this.scene = scene;
         position = new Vector2f();
         var rnd = new Random();
-        velocity = new Vector2f(rnd.nextFloat(-1.0f, 1.0f), rnd.nextFloat(-1.0f, 1.0f))
+        velocity = new Vector2f(rnd.nextFloat(-0.8f, 0.8f), rnd.nextFloat(-0.8f, 0.8f))
             .normalize()
             .mul(5.0f);
         bCircle = new BCircle2f().r(BALL_RADIUS);
@@ -165,18 +165,12 @@ public final class Ball {
 
     public void render() {
         var color = colorType.color();
-        float x0 = position.x();
-        float y0 = position.y();
-        float x1 = x0 + BALL_DIAMETER;
-        float y1 = y0 + BALL_DIAMETER;
+        glPushMatrix();
+        glTranslatef(bCircle.x(), bCircle.y(), 0.0f);
+        glColor3f(color.x() * 0.5f, color.y() * 0.5f, color.z() * 0.5f);
+        drawCircle(BALL_RADIUS, 80);
         glColor3f(color.x(), color.y(), color.z());
-        glTexCoord2f(0.0f, 0.0f);
-        glVertex2f(x0, y1);
-        glTexCoord2f(0.0f, 1.0f);
-        glVertex2f(x0, y0);
-        glTexCoord2f(1.0f, 1.0f);
-        glVertex2f(x1, y0);
-        glTexCoord2f(1.0f, 0.0f);
-        glVertex2f(x1, y1);
+        drawCircle(BALL_RADIUS - (1 / (float) BALL_PIXELS), 80);
+        glPopMatrix();
     }
 }

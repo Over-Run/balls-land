@@ -66,10 +66,6 @@ public final class BallsLand extends GlfwApplication {
             glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
             glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         });
-        Textures.addTexture("ball.png", target -> {
-            glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-            glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        });
         assetMgr.reloadAssets();
         scene = new Scene();
     }

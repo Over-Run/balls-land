@@ -6,11 +6,25 @@ import org.joml.Vector2fc;
 import org.overrun.swgl.core.phys.p2d.AABRect2f;
 import org.overrun.swgl.core.util.math.Direction;
 
+import static org.lwjgl.opengl.GL11.*;
+
 /**
  * @author squid233
  * @since 0.1.0
  */
 public final class Utils {
+    public static void drawCircle(float r,
+                                  int slices) {
+        glBegin(GL_POLYGON);
+        for (int i = 0; i < slices; i++) {
+            float rad = 2 * (float) Math.PI * i / slices;
+            float sin = Math.sin(rad);
+            float cos = Math.cosFromSin(sin, rad);
+            glVertex2f(r * cos, r * sin);
+        }
+        glEnd();
+    }
+
     public static Direction vectorDirection(Vector2fc target) {
         float max = 0.0f;
         var bestMatch = Direction.UP;

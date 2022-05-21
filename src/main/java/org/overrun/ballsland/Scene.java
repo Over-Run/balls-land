@@ -47,10 +47,12 @@ public final class Scene {
     private final ColorType[][] bricks;
     public final Map<Ball, ColorType> balls = new LinkedHashMap<>();
     private final Map<ColorType, Integer> baseCount = new LinkedHashMap<>();
+    private final Map<ColorType, Integer> brickCount = new LinkedHashMap<>();
 
     public Scene() {
         for (var ct : ColorType.values()) {
             baseCount.put(ct, 4);
+            brickCount.put(ct, LAND_SIZE * LAND_SIZE / 4);
         }
         bricks = new ColorType[LAND_SIZE][LAND_SIZE];
         initArea(ColorType.R, 0, LAND_SIZE / 2);
@@ -115,6 +117,8 @@ public final class Scene {
             if (oldType != null) {
                 baseCount.put(oldType, baseCount.get(oldType) - 1);
                 baseCount.put(colorType, baseCount.get(colorType) + 1);
+                brickCount.put(oldType, brickCount.get(oldType) - 1);
+                brickCount.put(colorType, brickCount.get(colorType) + 1);
             }
         }
     }
@@ -156,12 +160,9 @@ public final class Scene {
     }
 
     private void renderBalls() {
-        Textures.getTexture("ball.png").bind();
-        glBegin(GL_QUADS);
         for (var ball : balls.keySet()) {
             ball.render();
         }
-        glEnd();
     }
 
     private void checkRemove() {
@@ -188,7 +189,7 @@ public final class Scene {
             .filter(colorType -> baseCount.get(colorType) > 0 && !balls.containsValue(colorType))
             .forEachOrdered(type -> {
                 var rnd = new Random();
-                int c = rnd.nextInt(1, 101);
+                int c = rnd.nextInt(1, Math.max(2, brickCount.get(type)));
                 for (int i = 0; i < c; i++) {
                     addBall(type);
                 }
@@ -207,13 +208,13 @@ public final class Scene {
         glTranslatef((vw - PIXELS) * 0.5f, (vh - PIXELS) * 0.5f, 0);
         renderBorders();
         glTranslatef(BORDER_PIXELS, BORDER_PIXELS, 0);
-        GLStateMgr.enableTexture2D();
         glPushMatrix();
         glScalef(BRICK_PIXELS, BRICK_PIXELS, 1.0f);
+        GLStateMgr.enableTexture2D();
         renderBricks();
+        GLStateMgr.disableTexture2D();
         renderBalls();
         glPopMatrix();
-        GLStateMgr.disableTexture2D();
         glPopMatrix();
     }
 }
